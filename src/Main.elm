@@ -60,21 +60,14 @@ view : Model -> Html msg
 view model =
     div [ class "content" ]
         [ h2 [] [ text "Listagem de peps :) " ]
-        , viewListagemPeps model.peps
         , table [ class "table-peps" ]
-            [ viewHeaderPeps
-            , tr [ class "table-row" ] [ td [] [ text "Antedeguemon" ], td [] [ text "123456" ] ]
-            ]
+            (List.append [ viewHeaderPeps ] (List.map viewRowsPeps model.peps))
         ]
 
 
-viewListagemPeps : List Pep -> Html msg
-viewListagemPeps peps =
-    ul [ class "peps" ] (List.map viewNomeCompleto peps)
 
-
-
--- Depois atualizar pra puxar os valores do record de Pep
+-- Depois atualizar pra puxar os valores do record de Pep. Na verdade sera necessario transformar o PEP em um dict
+-- Ja que as chaves de um record nao vao pra runtime
 
 
 viewHeaderPeps : Html msg
@@ -89,6 +82,6 @@ viewHeaderPeps =
     tr [ class "row-table-header" ] createHeaders
 
 
-viewNomeCompleto : Pep -> Html msg
-viewNomeCompleto pep =
-    li [ class "pep" ] [ text (pep.nome ++ " " ++ pep.sobrenome) ]
+viewRowsPeps : Pep -> Html msg
+viewRowsPeps pep =
+    tr [ class "table-row" ] [ td [] [ text pep.nome ], td [] [ text pep.cpf ] ]
