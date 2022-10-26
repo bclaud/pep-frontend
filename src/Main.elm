@@ -26,7 +26,10 @@ type alias Model =
 
 
 type alias Pep =
-    { nome : String, sobrenome : String, cpf : String }
+    { nome : String
+    , sobrenome : String
+    , cpf : String
+    }
 
 
 init : Model
@@ -58,12 +61,32 @@ view model =
     div [ class "content" ]
         [ h2 [] [ text "Listagem de peps :) " ]
         , viewListagemPeps model.peps
+        , table [ class "table-peps" ]
+            [ viewHeaderPeps
+            , tr [ class "table-row" ] [ td [] [ text "Antedeguemon" ], td [] [ text "123456" ] ]
+            ]
         ]
 
 
 viewListagemPeps : List Pep -> Html msg
 viewListagemPeps peps =
     ul [ class "peps" ] (List.map viewNomeCompleto peps)
+
+
+
+-- Depois atualizar pra puxar os valores do record de Pep
+
+
+viewHeaderPeps : Html msg
+viewHeaderPeps =
+    let
+        headerFields =
+            [ "Nome", "CPF" ]
+
+        createHeaders =
+            List.map (\header -> th [ class ("header-" ++ header) ] [ text header ]) headerFields
+    in
+    tr [ class "row-table-header" ] createHeaders
 
 
 viewNomeCompleto : Pep -> Html msg
