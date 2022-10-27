@@ -3,6 +3,7 @@ module Main exposing (..)
 import Browser
 import Html exposing (..)
 import Html.Attributes as Attr exposing (..)
+import Html.Events exposing (onInput)
 
 
 
@@ -22,7 +23,9 @@ main =
 
 
 type alias Model =
-    { peps : List Pep }
+    { peps : List Pep
+     , buscaNome : String
+     , buscaCpf : String }
 
 
 type alias Pep =
@@ -34,7 +37,7 @@ type alias Pep =
 
 init : Model
 init =
-    Model [ Pep "Astolfo" "Sobrenome" "123456", Pep "Arnaldo" "Maninho" "123432" ]
+    Model [ Pep "Astolfo" "Sobrenome" "123456", Pep "Arnaldo" "Maninho" "123432" ] "" ""
 
 
 
@@ -42,29 +45,38 @@ init =
 
 
 type Msg
-    = Something
+    = InputSearchByCpf String
+    | InputSearchByName String
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Something ->
-            model
+       InputSearchByName name  ->
+            {model | buscaNome = name}
+
+       InputSearchByCpf cpf ->
+           { model | buscaCpf = cpf}
 
 
 
 -- VIEW
 
 
-view : Model -> Html msg
+view : Model -> Html Msg
 view model =
     div [ class "content" ]
         [ h2 [] [ text "Listagem de peps :) " ]
+        , viewSearchInput "Busque por nome" model.buscaNome InputSearchByName
+        , viewSearchInput "Busque por CPF parcial (6 digitos do meio)" model.buscaCpf InputSearchByCpf
         , table [ class "table-peps" ]
             (List.append [ viewHeaderPeps ] (List.map viewRowsPeps model.peps))
         ]
 
 
+viewSearchInput : String -> String -> (String -> msg) -> Html msg
+viewSearchInput p v toMsg=
+    input [ type_ "text", placeholder p, value v, onInput toMsg] []
 
 -- Depois atualizar pra puxar os valores do record de Pep. Na verdade sera necessario transformar o PEP em um dict
 -- Ja que as chaves de um record nao vao pra runtime
