@@ -24,8 +24,9 @@ main =
 
 type alias Model =
     { peps : List Pep
-     , buscaNome : String
-     , buscaCpf : String }
+    , buscaNome : String
+    , buscaCpf : String
+    }
 
 
 type alias Pep =
@@ -52,11 +53,15 @@ type Msg
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-       InputSearchByName name  ->
-            {model | buscaNome = name}
+        InputSearchByName name ->
+            { model | buscaNome = name}
+            --{ model | buscaNome = name, peps = [ Pep name "Clodovislis" "123123123" ] }
 
-       InputSearchByCpf cpf ->
-           { model | buscaCpf = cpf}
+        InputSearchByCpf cpf ->
+            { model | buscaCpf = cpf}
+            -- Nao preciso criar duas mensagens, basta atualizar o model com as informacoes.
+            -- A ideia é que seja em tempo real, entao vai ser onInput, mas poderia ser com outros eventos :)
+            --{ model | buscaCpf = cpf, peps = [ Pep "Mirovaldo" "Rabindramba" cpf ] }
 
 
 
@@ -75,8 +80,10 @@ view model =
 
 
 viewSearchInput : String -> String -> (String -> msg) -> Html msg
-viewSearchInput p v toMsg=
-    input [ type_ "text", placeholder p, value v, onInput toMsg] []
+viewSearchInput p v toMsg =
+    input [ type_ "text", placeholder p, value v, onInput toMsg ] []
+
+
 
 -- Depois atualizar pra puxar os valores do record de Pep. Na verdade sera necessario transformar o PEP em um dict
 -- Ja que as chaves de um record nao vao pra runtime
