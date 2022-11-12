@@ -1,9 +1,9 @@
 body {
-  font-family: sans-serif;
+  font-family: "Helvetica", "Arial", sans-serif;
   font-size: 18px;
 
   background-color: #EEEEEE;
-  margin: 3rem 2rem;
+  margin: 3em 2em;
 
 }
 
@@ -29,13 +29,13 @@ h2 {
 .filters {
   text-align: left;
 }
+
 .filter-label {
   font-size: 1.2em;
+  display: block;
 }
 
-.filter {
-  display: block;
-  margin: 0.8em;
-  padding: 0.4em;
+.filter-input {
+  margin: 0.4em;
   font-size: 1.0em;
 }

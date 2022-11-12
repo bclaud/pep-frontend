@@ -169,8 +169,8 @@ viewSearchInput labelName v toMsg submitType =
     div [ class "filter-div" ]
         [ label [ class "filter-label" ]
             [ text labelName
-            , input [ class "filter-input", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] []
             ]
+        , input [ class "filter-input", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] []
         , button [ class "filter-button", onClick (submitType v) ] [ text "Buscar" ]
         ]
 
