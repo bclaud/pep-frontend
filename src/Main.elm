@@ -5,8 +5,8 @@ import Html exposing (..)
 import Html.Attributes exposing (class, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode as Decode exposing (Decoder, decodeString, float, int, list, nullable, string)
-import Json.Decode.Pipeline as Pdecode exposing (hardcoded, optional, required)
+import Json.Decode as Decode exposing (Decoder, string)
+import Json.Decode.Pipeline as Pdecode
 
 
 
@@ -16,10 +16,10 @@ import Json.Decode.Pipeline as Pdecode exposing (hardcoded, optional, required)
 main : Program () Model Msg
 main =
     Browser.element
-        { init = \flags -> ( initialModel, Cmd.none )
+        { init = \_ -> ( initialModel, Cmd.none )
         , update = update
         , view = view
-        , subscriptions = \model -> Sub.none
+        , subscriptions = \_ -> Sub.none
         }
 
 
@@ -169,9 +169,9 @@ viewSearchInput labelName v toMsg submitType =
     div [ class "filter-div" ]
         [ label [ class "filter-label" ]
             [ text labelName
-            , input [ class "filter", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] []
+            , input [ class "filter-input", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] []
             ]
-        , button [ onClick (submitType v) ] [ text "Buscar" ]
+        , button [ class "filter-button", onClick (submitType v) ] [ text "Buscar" ]
         ]
 
 
@@ -194,4 +194,8 @@ viewHeaderPeps =
 
 viewRowsPeps : Pep -> Html msg
 viewRowsPeps pep =
-    tr [ class "table-row" ] [ td [] [ text pep.nome ], td [] [ text pep.cpf_parcial ], td [] [ text pep.data_fim ] ]
+    tr [ class "table-row" ]
+        [ td [] [ text pep.nome ]
+        , td [] [ text pep.cpf_parcial ]
+        , td [] [ text pep.data_fim ]
+        ]
