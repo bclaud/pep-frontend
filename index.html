@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="BR">
 
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="./style/typo.css">
   <title>PEP</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-  <div class="presentation">
+  <div class="presentation system-fonts">
     <h1 class="title">Pessoas expostas politicamente</h1>
     <figure>
       <blockquote
@@ -25,6 +25,7 @@
         transparencia.</a>
     </p>
 
+    <hr />
   </div>
   <div id="app"></div>
   <script src="app.js"></script>
@@ -32,5 +33,15 @@
     Elm.Main.init({node: document.getElementById("app")})
   </script>
 </body>
+
+<footer>
+  <span>Projeto open-source disponível em <a href="https://github.com/bclaud/pep-frontend"
+      target="_blank">Github</a></span>
+  <br>
+  <span>Built with love using <a href="https://elm-lang.org/" target="_blank">Elm</a></span>
+  <br>
+  <span>Open-source backend built with love using <a href="https://elixir-lang.org" target="_blank">Elixir</a>.
+    Available on <a href="https://github.com/bclaud/pep-api" target="_blank">Github</a></span>
+</footer>
 
 </html>

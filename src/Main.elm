@@ -50,7 +50,7 @@ pepDecoder =
     Decode.succeed Pep
         |> Pdecode.required "cpf_parcial" string
         |> Pdecode.hardcoded ""
-        |> Pdecode.hardcoded ""
+        |> Pdecode.required "data_fim" string
         |> Pdecode.hardcoded ""
         |> Pdecode.required "nome" string
         |> Pdecode.hardcoded ""
@@ -146,17 +146,19 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "content" ]
-        [ h2 [] [ text "Listagem de peps :) " ]
-        , viewSearchInput "Busque por nome" model.buscaNome InputSearchByName
-        , viewSearchInput "Busque por CPF parcial (6 digitos do meio)" model.buscaCpf InputSearchByCpf
+        [ h2 [] [ text "Listagem de PEP" ]
+        , div [ class "filters" ]
+            [ viewSearchInput "Nome:" model.buscaNome InputSearchByName
+            , viewSearchInput "Busque por CPF parcial (6 digitos do meio):" model.buscaCpf InputSearchByCpf
+            ]
         , table [ class "table-peps" ]
             (List.append [ viewHeaderPeps ] (List.map viewRowsPeps model.peps))
         ]
 
 
 viewSearchInput : String -> String -> (String -> msg) -> Html msg
-viewSearchInput p v toMsg =
-    input [ type_ "text", placeholder p, value v, onInput toMsg ] []
+viewSearchInput l v toMsg =
+    label [ class "filter-label" ] [ text l, input [ class "filter", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] [] ]
 
 
 
@@ -168,7 +170,7 @@ viewHeaderPeps : Html msg
 viewHeaderPeps =
     let
         headerFields =
-            [ "Nome", "CPF" ]
+            [ "Nome", "CPF", "Data final" ]
 
         createHeaders =
             List.map (\header -> th [ class ("header-" ++ header) ] [ text header ]) headerFields
@@ -178,4 +180,4 @@ viewHeaderPeps =
 
 viewRowsPeps : Pep -> Html msg
 viewRowsPeps pep =
-    tr [ class "table-row" ] [ td [] [ text pep.nome ], td [] [ text pep.cpf_parcial ] ]
+    tr [ class "table-row" ] [ td [] [ text pep.nome ], td [] [ text pep.cpf_parcial ], td [] [ text pep.data_fim ] ]
