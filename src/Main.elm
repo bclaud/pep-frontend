@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class, placeholder, type_, value)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Decode exposing (Decoder, decodeString, float, int, list, nullable, string)
 import Json.Decode.Pipeline as Pdecode exposing (hardcoded, optional, required)
@@ -111,17 +111,19 @@ type Msg
     | InputSearchByName String
     | SearchedByName (Result Http.Error (List Pep))
     | SearchedByCpf (Result Http.Error (List Pep))
+    | SubmitedSearchName String
+    | SubmitedSearchCpf String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         InputSearchByName name ->
-            ( { model | buscaNome = name }, searchPepByNome name )
+            ( { model | buscaNome = name }, Cmd.none )
 
         --{ model | buscaNome = name, peps = [ Pep name "Clodovislis" "123123123" ] }
         InputSearchByCpf cpf ->
-            ( { model | buscaCpf = cpf }, searchPepByCpf cpf )
+            ( { model | buscaCpf = cpf }, Cmd.none )
 
         SearchedByName (Ok peps) ->
             ( { model | peps = peps }, Cmd.none )
@@ -134,6 +136,12 @@ update msg model =
 
         SearchedByCpf (Err _) ->
             ( model, Cmd.none )
+
+        SubmitedSearchName name ->
+            ( model, searchPepByNome name )
+
+        SubmitedSearchCpf cpf ->
+            ( model, searchPepByCpf cpf )
 
 
 
@@ -148,17 +156,23 @@ view model =
     div [ class "content" ]
         [ h2 [] [ text "Listagem de PEP" ]
         , div [ class "filters" ]
-            [ viewSearchInput "Nome:" model.buscaNome InputSearchByName
-            , viewSearchInput "Busque por CPF parcial (6 digitos do meio):" model.buscaCpf InputSearchByCpf
+            [ viewSearchInput "Nome:" model.buscaNome InputSearchByName SubmitedSearchName
+            , viewSearchInput "CPF parcial (6 dígitos do meio):" model.buscaCpf InputSearchByCpf SubmitedSearchCpf
             ]
         , table [ class "table-peps" ]
             (List.append [ viewHeaderPeps ] (List.map viewRowsPeps model.peps))
         ]
 
 
-viewSearchInput : String -> String -> (String -> msg) -> Html msg
-viewSearchInput l v toMsg =
-    label [ class "filter-label" ] [ text l, input [ class "filter", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] [] ]
+viewSearchInput : String -> String -> (String -> msg) -> (String -> msg) -> Html msg
+viewSearchInput labelName v toMsg submitType =
+    div [ class "filter-div" ]
+        [ label [ class "filter-label" ]
+            [ text labelName
+            , input [ class "filter", placeholder "Busque aqui", type_ "text", value v, onInput toMsg ] []
+            ]
+        , button [ onClick (submitType v) ] [ text "Buscar" ]
+        ]
 
 
 
