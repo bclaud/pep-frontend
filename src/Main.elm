@@ -50,10 +50,10 @@ pepDecoder =
     Decode.succeed Pep
         |> Pdecode.required "cpf_parcial" string
         |> Pdecode.hardcoded ""
-        |> Pdecode.required "data_fim" string
-        |> Pdecode.hardcoded ""
+        |> Pdecode.optional "data_fim" string ""
+        |> Pdecode.optional "data_inicio" string ""
         |> Pdecode.required "nome" string
-        |> Pdecode.hardcoded ""
+        |> Pdecode.optional "regiao" string ""
         |> Pdecode.hardcoded ""
 
 
@@ -184,7 +184,7 @@ viewHeaderPeps : Html msg
 viewHeaderPeps =
     let
         headerFields =
-            [ "Nome", "CPF", "Data final" ]
+            [ "Nome", "CPF", "Data inicial", "Data final", "Região" ]
 
         createHeaders =
             List.map (\header -> th [ class ("header-" ++ header) ] [ text header ]) headerFields
@@ -197,5 +197,7 @@ viewRowsPeps pep =
     tr [ class "table-row" ]
         [ td [] [ text pep.nome ]
         , td [] [ text pep.cpf_parcial ]
+        , td [] [ text pep.data_inicio ]
         , td [] [ text pep.data_fim ]
+        , td [] [ text pep.regiao ]
         ]
