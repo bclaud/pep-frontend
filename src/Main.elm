@@ -81,7 +81,7 @@ searchPepByNome : String -> Cmd Msg
 searchPepByNome nome =
     if String.length nome > 3 then
         Http.get
-            { url = "http://localhost:4000/api/pep/nome/" ++ nome
+            { url = "https://pep.claudlabs.com/api/pep/nome/" ++ nome
             , expect = Http.expectJson SearchedByName (Decode.list pepDecoder)
             }
 
@@ -94,7 +94,7 @@ searchPepByCpf cpf_parcial =
     case String.length cpf_parcial of
         6 ->
             Http.get
-                { url = "http://localhost:4000/api/pep/" ++ cpf_parcial
+                { url = "https://pep.claudlabs.com/api/pep/" ++ cpf_parcial
                 , expect = Http.expectJson SearchedByName (Decode.list pepDecoder)
                 }
 
