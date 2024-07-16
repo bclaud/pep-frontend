@@ -1,7 +1,7 @@
 {
   description = "A very basic flake";
 
-  inputs.nixpkgs.url = "github:NixOs/nixpkgs/nixos-22.05";
+  inputs.nixpkgs.url = "github:NixOs/nixpkgs/nixpkgs-unstable";
 
   outputs = { self, nixpkgs }: {
 
@@ -32,6 +32,7 @@
             elmPackages.elm-upgrade
             elmPackages.elm-analyse
             elmPackages.elm-language-server
+            uglify-js
           ];
       };
   };
