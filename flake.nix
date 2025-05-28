@@ -13,6 +13,11 @@
         name = "gimme tht";
         buildInputs =
           with pkgs; [
+            gleam
+            erlang
+            rebar3
+            libnotify
+            inotify-tools
             gnumake
             gcc
             readline

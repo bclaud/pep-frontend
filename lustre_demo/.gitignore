@@ -1,9 +1,3 @@
-.direnv/
-elm-stuff/
-.idea
-app.js
-dist/
-
 *.beam
 *.ez
 /build
