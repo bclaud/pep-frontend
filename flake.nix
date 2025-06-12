@@ -13,6 +13,7 @@
         name = "gimme tht";
         buildInputs =
           with pkgs; [
+            wrangler
             gleam
             erlang
             rebar3

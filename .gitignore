@@ -9,3 +9,6 @@ dist/
 /build
 erl_crash.dump
 priv/static/*.mjs
+dist/
+
+.env
