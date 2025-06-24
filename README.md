@@ -25,7 +25,7 @@ gleam test  # Run the tests
 
 ## TODO
  [x] - tailwind
- [ ] - automatic deploy (cloudflare pages)
+ [x] - automatic deploy (cloudflare pages)
       add server urls at compile time :)
- [ ] - favicon
- [ ] - delete old Elm version
+ [x] - favicon
+ [x] - delete old Elm version

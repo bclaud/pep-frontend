@@ -62,42 +62,43 @@ fn init(_args) -> #(Model, Effect(Msg)) {
 pub type Msg {
   InputSearchByCpf(String)
   InputSearchByName(String)
-  SearchedByName(Result(List(Pep), rsvp.Error))
-  SearchedByCpf(Result(List(Pep), rsvp.Error))
-  SubmitedSearchName(String)
-  SubmitedSearchCpf(String)
+  FetchResulted(Result(List(Pep), rsvp.Error))
+  SubmittedSearch
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     InputSearchByName(name) -> {
-      let model = Model(..model, busca_nome: name)
+      let model = Model(..model, busca_cpf: "", busca_nome: name)
       #(model, effect.none())
     }
     InputSearchByCpf(cpf) -> {
-      let model = Model(..model, busca_cpf: cpf)
+      let model = Model(..model, busca_cpf: cpf, busca_nome: "")
+
       #(model, effect.none())
     }
-    SearchedByName(Ok(peps)) -> {
+    FetchResulted(Ok(peps)) -> {
       let model = Model(..model, peps: peps)
       #(model, effect.none())
     }
-    SearchedByName(Error(_)) -> {
+    FetchResulted(Error(_)) -> {
       #(model, effect.none())
     }
-    SearchedByCpf(Ok(peps)) -> {
-      let model = Model(..model, peps: peps)
-      #(model, effect.none())
+    SubmittedSearch -> {
+      #(model, search_pep(model))
     }
-    SearchedByCpf(Error(_)) -> {
-      #(model, effect.none())
+  }
+}
+
+fn search_pep(model: Model) -> Effect(Msg) {
+  case model.busca_cpf, model.busca_nome {
+    cpf, "" -> {
+      search_pep_by_cpf(cpf)
     }
-    SubmitedSearchName(name) -> {
-      #(model, search_pep_by_name(name))
+    "", name -> {
+      search_pep_by_name(name)
     }
-    SubmitedSearchCpf(cpf) -> {
-      #(model, search_pep_by_cpf(cpf))
-    }
+    _, _ -> effect.none()
   }
 }
 
@@ -105,7 +106,7 @@ fn search_pep_by_name(name) -> Effect(Msg) {
   case string.length(name) > 3 {
     True -> {
       let url = "https://pep.claudlabs.com/api/pep/nome/" <> name
-      let handler = rsvp.expect_json(decode.list(pep_decoder()), SearchedByName)
+      let handler = rsvp.expect_json(decode.list(pep_decoder()), FetchResulted)
 
       rsvp.get(url, handler)
     }
@@ -117,7 +118,7 @@ fn search_pep_by_cpf(cpf) -> Effect(Msg) {
   case string.length(cpf) == 6 {
     True -> {
       let url = "https://pep.claudlabs.com/api/pep/" <> cpf
-      let handler = rsvp.expect_json(decode.list(pep_decoder()), SearchedByName)
+      let handler = rsvp.expect_json(decode.list(pep_decoder()), FetchResulted)
 
       rsvp.get(url, handler)
     }
@@ -128,23 +129,19 @@ fn search_pep_by_cpf(cpf) -> Effect(Msg) {
 // VIEW ------------------------
 
 fn view(model: Model) -> Element(Msg) {
-  html.div([attribute.class("px-4 py-6 md:px-8 md:py-8 max-w-6xl mx-auto")], [
-    html.h2([attribute.class("text-2xl font-bold text-indigo-800 mb-6")], [
-      html.text("Listagem"),
-    ]),
-    html.div([attribute.class("flex flex-wrap items-end gap-4 mb-8")], [
-      view_search_input(
-        "Nome:",
-        model.busca_nome,
-        InputSearchByName,
-        SubmitedSearchName,
-      ),
+  html.div([attribute.class("px-4 py-6 md:px-1 md:py-1 max-w-6xl mx-auto")], [
+    html.h2(
+      [attribute.class("text-2xl font-bold text-center text-indigo-800 mb-6")],
+      [html.text("Listagem")],
+    ),
+    html.div([attribute.class("flex flex-col items-center gap-4 mb-8")], [
+      view_search_input("Nome:", model.busca_nome, InputSearchByName),
       view_search_input(
         "CPF Parcial (6 dígitos do meio):",
         model.busca_cpf,
         InputSearchByCpf,
-        SubmitedSearchCpf,
       ),
+      view_search_button(),
     ]),
     view_pep_table(model),
   ])
@@ -165,75 +162,109 @@ fn view_pep_table(model: Model) {
           ),
         ],
         [
-        html.thead([], [view_header_peps()]),
-        html.tbody([], list.map(model.peps, view_rows_peps))
-      ]
+          html.thead([], [view_header_peps()]),
+          html.tbody([], list.map(model.peps, view_rows_peps)),
+        ],
       )
     }
   }
 }
 
-fn view_search_input(label, v, to_msg, submit_type) {
-  html.div([attribute.class("flex items-center gap-2")], [
+fn view_search_input(label, v, to_msg) {
+  html.div([attribute.class("flex flex-col gap-4")], [
     html.label([attribute.class("text-sm font-medium text-gray-700")], [
       html.text(label),
     ]),
     html.input([
       attribute.class(
-        "w-40 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all",
+        "w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all",
       ),
       attribute.placeholder("Busque aqui"),
       attribute.type_("text"),
       attribute.value(v),
       event.on_input(to_msg),
     ]),
-    html.button(
-      [
-        attribute.class(
-          "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors",
-        ),
-        event.on_click(submit_type(v)),
-      ],
-      [html.text("Pesquisar")],
-    ),
   ])
+}
+
+fn view_search_button() {
+  html.button(
+    [
+      attribute.class(
+        "px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors",
+      ),
+      event.on_click(SubmittedSearch),
+    ],
+    [html.text("Pesquisar")],
+  )
 }
 
 fn view_header_peps() {
   let header_fields = ["Nome", "CPF", "Data inicial", "Data final", "Região"]
 
-  let create_headers = list.map(header_fields, fn(header) {
-    html.th([
-      attribute.class(
-        "px-4 py-3 text-left align-middle font-bold text-indigo-700 uppercase tracking-wider bg-indigo-50 border-b border-gray-200"
+  let create_headers =
+    list.map(header_fields, fn(header) {
+      html.th(
+        [
+          attribute.class(
+            "px-4 py-3 text-left align-middle font-bold text-indigo-700 uppercase tracking-wider bg-indigo-50 border-b border-gray-200",
+          ),
+        ],
+        [html.text(header)],
       )
-    ], [
-      html.text(header)
-    ])
-  })
+    })
 
   html.tr([], create_headers)
 }
 
-
 pub fn view_rows_peps(pep: Pep) {
-  html.tr([
-    attribute.class("even:bg-white odd:bg-gray-50 hover:bg-indigo-50 transition-colors")
-  ], [
-    html.td([
-      attribute.class("px-4 py-3 text-gray-700 align-middle border-b border-gray-200")
-    ], [html.text(pep.nome)]),
-    html.td([
-      attribute.class("px-4 py-3 text-gray-700 align-middle border-b border-gray-200")
-    ], [html.text(pep.cpf_parcial)]),
-    html.td([
-      attribute.class("px-4 py-3 text-gray-700 align-middle border-b border-gray-200")
-    ], [html.text(pep.data_inicio)]),
-    html.td([
-      attribute.class("px-4 py-3 text-gray-700 align-middle border-b border-gray-200")
-    ], [html.text(pep.data_fim)]),
-    html.td([
-      attribute.class("px-4 py-3 text-gray-700 align-middle border-b border-gray-200")
-    ], [html.text(pep.regiao)])
-  ])
+  html.tr(
+    [
+      attribute.class(
+        "even:bg-white odd:bg-gray-50 hover:bg-indigo-50 transition-colors",
+      ),
+    ],
+    [
+      html.td(
+        [
+          attribute.class(
+            "px-4 py-3 text-gray-700 align-middle border-b border-gray-200",
+          ),
+        ],
+        [html.text(pep.nome)],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "px-4 py-3 text-gray-700 align-middle border-b border-gray-200",
+          ),
+        ],
+        [html.text(pep.cpf_parcial)],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "px-4 py-3 text-gray-700 align-middle border-b border-gray-200",
+          ),
+        ],
+        [html.text(pep.data_inicio)],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "px-4 py-3 text-gray-700 align-middle border-b border-gray-200",
+          ),
+        ],
+        [html.text(pep.data_fim)],
+      ),
+      html.td(
+        [
+          attribute.class(
+            "px-4 py-3 text-gray-700 align-middle border-b border-gray-200",
+          ),
+        ],
+        [html.text(pep.regiao)],
+      ),
+    ],
+  )
 }
